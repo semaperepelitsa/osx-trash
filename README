@@ -1,6 +1,9 @@
-osx-trash is a command line program to manipulate the trash on Mac OS X. It
-uses AppleScript via Scripting Bridge to manipulate the trash, just like the
-Finder does.  Here's a simple example:
+= Overview
+
+osx-trash is a command line program called trash[link:files/bin/trash.html]
+to manipulate the trash on Mac OS X. It uses AppleScript via Scripting Bridge
+on top of RubyCocoa to manipulate the trash, just like the Finder does. Here's
+a simple example:
 
   % touch foo bar baz
   % trash -l
@@ -12,7 +15,9 @@ Finder does.  Here's a simple example:
   % trash -e
   % trash -l
 
-Using AppleScript has a number of benefits.  First, it creates unique names when trashed:
+Using Finder's AppleScript has a number of benefits compared to shell scripts
+that just move files to ~/.Trash. First, it creates unique names when there
+are collisions:
 
   % touch foo
   % trash foo
@@ -22,7 +27,7 @@ Using AppleScript has a number of benefits.  First, it creates unique names when
   /Users/dave/.Trash/foo
   /Users/dave/.Trash/foo 20-38-20
 
-It also handles trashes on different disks properly:
+It also handles trashes on different volumes properly:
 
   % touch foo
   % trash foo
@@ -32,3 +37,8 @@ It also handles trashes on different disks properly:
   /Users/dave/.Trash/foo
   /Volumes/DiskImage/.Trashes/501/bar
 
+= Links
+
+* Project page: http://www.dribin.org/dave/osx-trash/
+* RubyForge project: http://rubyforge.org/projects/osx-trash/
+* Online documentation: http://osx-trash.rubyforge.org/api/
