@@ -36,82 +36,112 @@ require 'osx/cocoa'
 include OSX
 OSX.require_framework 'ScriptingBridge'
 
-def create_finder
-  stderr = $stderr.clone           # save current STDERR IO instance
-  $stderr.reopen('/dev/null', 'w') # send STDERR to /dev/null
-  finder = SBApplication.applicationWithBundleIdentifier("com.apple.Finder")
-  $stderr.reopen(stderr)           # revert to default behavior
-  return finder
-end
+class OSXTrashApp
+  COMMAND = File.basename($0)
+  USAGE =<<-EOF
+  Usage: #{COMMAND} [OPTIONS] <file> [<file> ...]
+         #{COMMAND} [-e | --empty]
+         #{COMMAND} [-l | --list]
+  EOF
 
-COMMAND = File.basename($0)
-USAGE =<<EOF
-Usage: #{COMMAND} [OPTIONS] <file> [<file> ...]
-       #{COMMAND} [-e | --empty]
-       #{COMMAND} [-l | --list]
-EOF
-
-options = OpenStruct.new
-options.empty = false
-options.list = false
-
-opts = OptionParser.new do |opts|
-  opts.banner = USAGE
-  opts.separator ""
-  opts.separator "Specific options:"
-  
-  opts.on("-e", "--empty", "Empty the trash") do
-    options.empty = true
+  def initialize
+    @options = OpenStruct.new
+    @options.empty = false
+    @options.list = false
   end
   
-  opts.on("-l", "--list", "List items in the trash") do
-    options.list = true
+  def create_finder
+    stderr = $stderr.clone           # save current STDERR IO instance
+    $stderr.reopen('/dev/null', 'w') # send STDERR to /dev/null
+    finder = SBApplication.applicationWithBundleIdentifier("com.apple.Finder")
+    $stderr.reopen(stderr)           # revert to default behavior
+    return finder
+  end
+
+  def run(argv)
+    exit_code = 0
+    begin
+      if parse_options(argv)
+        exit_code = main(argv)
+      end
+    rescue
+      STDERR.puts "#{COMMAND}: " + $!
+      exit_code = 1
+    end
+    return exit_code
   end
   
-  opts.on_tail("-h", "--help", "Show this message") do
-    puts opts
-    puts
-    puts "Manipulate to the Finder's trash."
-    exit
+  def parse_options(argv)
+    opts = OptionParser.new do |opts|
+      opts.banner = USAGE
+      opts.separator ""
+      opts.separator "Specific options:"
+
+      opts.on("-e", "--empty", "Empty the trash") do
+        @options.empty = true
+      end
+
+      opts.on("-l", "--list", "List items in the trash") do
+        @options.list = true
+      end
+
+      opts.on_tail("-h", "--help", "Show this message") do
+        puts opts
+        puts
+        puts "Manipulate to the Finder's trash."
+        return false
+      end
+
+      opts.on_tail("-v", "--version", "Show version") do
+        puts "#{COMMAND} #{OSXTrash::VERSION}"
+        return false  
+      end
+    end
+    
+    opts.parse!(argv)
+    return true
   end
 
-  opts.on_tail("-v", "--version", "Show version") do
-    puts "#{COMMAND} #{OSXTrash::VERSION}"
-    exit  
+  def main(argv)
+    if (@options.empty)
+      finder = create_finder
+      trash = finder.trash
+      trash.warnsBeforeEmptying = false
+      trash.emptySecurity(false)
+      return 0
+    end
+
+    if (@options.list)
+      finder = create_finder
+      trash = finder.trash
+      trash.items.each do |item|
+        file_url = NSURL.URLWithString(item.URL)
+        Pathname item_path = Pathname.new(file_url.path)
+        puts item_path
+      end
+      return 0
+    end
+
+    files = ARGV
+    if (files.length == 0)
+      $stderr.puts USAGE
+      $stderr.puts "Try `#{COMMAND} --help' for more information."
+      return 1
+    end
+
+    finder = create_finder
+    files.each do |file|
+      path = Pathname.new(file)
+      url = NSURL.fileURLWithPath(path.realpath.to_s)
+      item = finder.items.objectAtLocation(url)
+      item.delete
+    end
+    return 0
   end
 end
-opts.parse!(ARGV)
 
-if (options.empty)
-  finder = create_finder
-  trash = finder.trash
-  trash.warnsBeforeEmptying = false
-  trash.emptySecurity(false)
-  exit 0;
-end
+app = OSXTrashApp.new
+rc = app.run(ARGV)
+exit rc
 
-if (options.list)
-  finder = create_finder
-  trash = finder.trash
-  trash.items.each do |item|
-    file_url = NSURL.URLWithString(item.URL)
-    Pathname item_path = Pathname.new(file_url.path)
-    puts item_path
-  end
-  exit 0;
-end
 
-files = ARGV
-if (files.length == 0)
-  $stderr.puts USAGE
-  $stderr.puts "Try `#{COMMAND} --help' for more information."
-  exit 1
-end
-
-finder = create_finder
-files.each do |file|
-  path = Pathname.new(file)
-  url = NSURL.fileURLWithPath(path.realpath.to_s)
-  item = finder.items.objectAtLocation(url)
-  item.delete
-end
