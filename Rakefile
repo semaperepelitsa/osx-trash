@@ -50,7 +50,7 @@ spec = Gem::Specification.new do |s|
   EOF
   
   s.author = "Dave Dribin"
-  s.homepage = "http://www.dribin.org/dave/software/osx-trash/"
+  s.homepage = "http://www.dribin.org/dave/osx-trash/"
   s.rubyforge_project = 'osx-trash'
 end
 
