@@ -1,5 +1,32 @@
 #!/usr/bin/ruby
 
+# == Synopsis
+#
+# Manipulate the Mac OS X trash
+#
+# == Usage
+#
+#   trash [OPTIONS] <file> [<file> ...]
+#   trash [OPTIONS] [-e | --empty]
+#   trash [OPTIONS] [-l | --list]
+#
+# == Options
+#  
+# -e, --empty:: Empty the trash.
+#
+# -l, --list:: List items in the trash.
+#
+# -h, --help:: Prints a help message and exits.
+#
+# -v, --version:: Prints the version and exits.
+#
+# == Author
+# Dave Dribin
+#
+# == Copyright
+# Copyright (c)  2008 Dave Dribin
+# Licensed under the MIT license.
+
 require 'pathname'
 require 'optparse'
 require 'ostruct'
@@ -50,7 +77,7 @@ opts = OptionParser.new do |opts|
 
   opts.on_tail("-v", "--version", "Show version") do
     puts "#{COMMAND} #{OSXTrash::VERSION}"
-    exit
+    exit  
   end
 end
 opts.parse!(ARGV)
@@ -77,7 +104,7 @@ end
 files = ARGV
 if (files.length == 0)
   $stderr.puts USAGE
-  $stderr.puts "Try `#{$COMMAND} --help' for more information."
+  $stderr.puts "Try `#{COMMAND} --help' for more information."
   exit 1
 end
 

@@ -30,7 +30,7 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title    = "#{PKG_NAME} -- Mac OS X Trash Manipulation"
   rdoc.rdoc_files.include('README')
-  rdoc.rdoc_files.include('lib/**/*.rb', 'bin/*')
+  rdoc.rdoc_files.include('bin/*')
 end
 
 spec = Gem::Specification.new do |s|
