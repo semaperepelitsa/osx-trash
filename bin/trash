@@ -38,11 +38,11 @@ OSX.require_framework 'ScriptingBridge'
 
 class OSXTrashApp
   COMMAND = File.basename($0)
-  USAGE =<<-EOF
-  Usage: #{COMMAND} [OPTIONS] <file> [<file> ...]
-         #{COMMAND} [-e | --empty]
-         #{COMMAND} [-l | --list]
-  EOF
+  USAGE =<<EOF
+Usage: #{COMMAND} [OPTIONS] <file> [<file> ...]
+       #{COMMAND} [-e | --empty]
+       #{COMMAND} [-l | --list]
+EOF
 
   def initialize
     @options = OpenStruct.new
