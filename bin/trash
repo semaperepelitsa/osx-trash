@@ -7,12 +7,14 @@
 # == Usage
 #
 #   trash [OPTIONS] <file> [<file> ...]
-#   trash [OPTIONS] [-e | --empty]
+#   trash [OPTIONS] [-e | --empty] | [-E | --empty-securely]
 #   trash [OPTIONS] [-l | --list]
 #
 # == Options
 #  
 # -e, --empty:: Empty the trash.
+#
+# -E, --empty-securely:: Empty the trash securely.
 #
 # -l, --list:: List items in the trash.
 #
@@ -40,7 +42,7 @@ class OSXTrashApp
   COMMAND = File.basename($0)
   USAGE =<<EOF
 Usage: #{COMMAND} [OPTIONS] <file> [<file> ...]
-       #{COMMAND} [-e | --empty]
+       #{COMMAND} [-e | --empty] | [-E | --empty-securely]
        #{COMMAND} [-l | --list]
 EOF
 
@@ -48,6 +50,7 @@ EOF
     @options = OpenStruct.new
     @options.empty = false
     @options.list = false
+    @options.secure = false
   end
   
   def create_finder
@@ -80,6 +83,11 @@ EOF
       opts.on("-e", "--empty", "Empty the trash") do
         @options.empty = true
       end
+      
+      opts.on("-E", "--empty-securely", "Securel emtpy the trash") do
+        @options.empty = true
+        @options.secure = true
+      end
 
       opts.on("-l", "--list", "List items in the trash") do
         @options.list = true
@@ -107,7 +115,7 @@ EOF
       finder = create_finder
       trash = finder.trash
       trash.warnsBeforeEmptying = false
-      trash.emptySecurity(false)
+      trash.emptySecurity(@options.secure)
       return 0
     end
 
