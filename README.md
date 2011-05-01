@@ -1,6 +1,6 @@
 = Overview
 
-osx-trash is a command line program called trash[link:files/bin/trash.html]
+osx-trash is a command line program called trash
 to manipulate the trash on Mac OS X. It uses AppleScript via Scripting Bridge
 on top of RubyCocoa to manipulate the trash, just like the Finder does. Here's
 a simple example:
